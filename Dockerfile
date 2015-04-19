@@ -1,5 +1,5 @@
 #
-# GBC Dockerfile
+# Dockerfile for front end developement tools.
 #
 
 FROM buildpack-deps:jessie
@@ -14,8 +14,12 @@ MAINTAINER Márton Juhász <m@juhaszmarton.hu>
 # gpg: aka "Julien Gilli <jgilli@fastmail.fm>"
 RUN gpg --keyserver pool.sks-keyservers.net --recv-keys 7937DFD2AB06298B2293C3187D33FF9D0246406D 114F43EE0176B71C7BC219DD50A3051F888C628D
 
+RUN apt-get update
+
 ENV NODE_VERSION 0.12.2
 ENV NPM_VERSION 2.7.3
+ENV PHANTOMJS_VERSION 1.9.7
+ENV CASPERJS_VERSION 1.1-beta3
 
 RUN curl -SLO "http://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" \
   && curl -SLO "http://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
@@ -36,8 +40,7 @@ ENV RUBY_DOWNLOAD_SHA256 5a4de38068eca8919cb087d338c0c2e3d72c9382c804fb27ab746e6
 
 # some of ruby's build scripts are written in ruby
 # we purge this later to make sure our final image uses what we just built
-RUN apt-get update \
-  && apt-get install -y bison libgdbm-dev ruby \
+RUN apt-get install -y bison libgdbm-dev ruby \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /usr/src/ruby \
   && curl -fSL -o ruby.tar.gz "http://cache.ruby-lang.org/pub/ruby/$RUBY_MAJOR/ruby-$RUBY_VERSION.tar.gz" \
@@ -66,6 +69,22 @@ RUN gem install bundler \
 ENV BUNDLE_APP_CONFIG $GEM_HOME
 
 # ---------------------------------------------------------------------------------------------------------------
+# Install PhantomJS.
+# ---------------------------------------------------------------------------------------------------------------
+RUN curl -L -o phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 && \
+  tar -xjf phantomjs.tar.bz2 && \
+  ln -s /phantomjs*/bin/phantomjs /bin/
+
+# ---------------------------------------------------------------------------------------------------------------
+# Install CasperJS.
+# ---------------------------------------------------------------------------------------------------------------
+RUN apt-get update
+RUN apt-get install -y unzip
+RUN curl -L -o casperjs.zip https://github.com/n1k0/casperjs/zipball/$CASPERJS_VERSION && \
+  unzip casperjs.zip && \
+  ln -s /n1k0-casperjs*/bin/casperjs /bin/
+
+# ---------------------------------------------------------------------------------------------------------------
 
 # Clear apt sources.
 RUN apt-get clean -y
@@ -75,6 +94,5 @@ RUN gem install --no-rdoc --no-ri compass
 
 # Install Bower and Grunt.
 RUN npm install --global bower
-RUN npm install --global grunt-cli
 
 WORKDIR /app
