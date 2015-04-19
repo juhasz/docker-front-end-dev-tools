@@ -87,7 +87,8 @@ RUN curl -L -o casperjs.zip https://github.com/n1k0/casperjs/zipball/$CASPERJS_V
 # ---------------------------------------------------------------------------------------------------------------
 
 # Clear apt sources.
-RUN apt-get clean -y
+RUN apt-get autoremove -y && \
+  apt-get clean -y
 
 # Install compass.
 RUN gem install --no-rdoc --no-ri compass
