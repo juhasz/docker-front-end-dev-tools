@@ -5,6 +5,10 @@
 FROM buildpack-deps:jessie
 MAINTAINER Márton Juhász <m@juhaszmarton.hu>
 
+# Set locales
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
 # ---------------------------------------------------------------------------------------------------------------
 # Install nodejs.
 # Script from https://github.com/joyent/docker-node/blob/04e6f537ede555b2558abfab32a1b8d31e7c1500/0.12/Dockerfile
